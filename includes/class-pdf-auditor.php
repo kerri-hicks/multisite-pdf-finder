@@ -152,7 +152,12 @@ class PDF_Auditor {
 		}
 
 		$site_id = absint( $_POST['site_id'] );
-		$pdfs    = array();
+
+		if ( $site_id <= 0 ) {
+			wp_send_json_error( __( 'Invalid site ID', 'pdf-auditor' ), 400 );
+		}
+
+		$pdfs = array();
 
 		try {
 			// Switch to the site
@@ -164,7 +169,7 @@ class PDF_Auditor {
 			$attachments = $wpdb->get_results(
 				"SELECT ID, post_title, post_mime_type, post_date FROM {$wpdb->posts} 
 				 WHERE post_type = 'attachment' 
-				 AND post_mime_type = 'application/pdf'
+				 AND LOWER(post_mime_type) = 'application/pdf'
 				 ORDER BY post_date DESC"
 			);
 
@@ -186,7 +191,9 @@ class PDF_Auditor {
 						continue;
 					}
 
-					$file_size = filesize( $file_path );
+					// Safely get file size with error suppression
+					$file_size = @filesize( $file_path );
+					$file_size = $file_size ? $file_size : 0;
 
 					$pdfs[] = array(
 						'id'           => $attachment->ID,
@@ -227,8 +234,18 @@ class PDF_Auditor {
 		}
 
 		$site_id = absint( $_POST['site_id'] );
-		$site    = get_site( $site_id );
-		$pdfs    = array();
+
+		if ( $site_id <= 0 ) {
+			wp_send_json_error( __( 'Invalid site ID', 'pdf-auditor' ), 400 );
+		}
+
+		$site = get_site( $site_id );
+
+		if ( ! $site ) {
+			wp_send_json_error( __( 'Invalid site.', 'pdf-auditor' ), 404 );
+		}
+
+		$pdfs = array();
 
 		try {
 			// Switch to the site
@@ -240,7 +257,7 @@ class PDF_Auditor {
 			$attachments = $wpdb->get_results(
 				"SELECT ID, post_title, post_mime_type, post_date FROM {$wpdb->posts} 
 				 WHERE post_type = 'attachment' 
-				 AND post_mime_type = 'application/pdf'
+				 AND LOWER(post_mime_type) = 'application/pdf'
 				 ORDER BY post_date DESC"
 			);
 
@@ -260,7 +277,9 @@ class PDF_Auditor {
 						continue;
 					}
 
-					$file_size = filesize( $file_path );
+					// Safely get file size with error suppression
+					$file_size = @filesize( $file_path );
+					$file_size = $file_size ? $file_size : 0;
 
 					$pdfs[] = array(
 						'filename'    => wp_basename( $file_path ),
@@ -293,6 +312,9 @@ class PDF_Auditor {
 	 */
 	private function generate_csv( $pdfs ) {
 		$output = fopen( 'php://memory', 'r+' );
+
+		// Write UTF-8 BOM for Excel compatibility
+		fwrite( $output, "\xEF\xBB\xBF" );
 
 		// Header row
 		fputcsv( $output, array( 'Filename', 'Direct Link', 'Upload Date', 'File Size' ) );
