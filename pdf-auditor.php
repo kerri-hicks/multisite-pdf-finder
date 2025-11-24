@@ -16,7 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define plugin constants
 define( 'PDF_AUDITOR_VERSION', '1.0.0' );
 define( 'PDF_AUDITOR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'PDF_AUDITOR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'PDF_AUDITOR_PLUGIN_URL', network_site_url( '/wp-content/plugins/' . basename( dirname( __FILE__ ) ) . '/' ) );
+
 
 // Only load on multisite
 if ( ! is_multisite() ) {
