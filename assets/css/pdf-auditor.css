@@ -6,7 +6,7 @@
 }
 
 .pdf-auditor-site {
-	border: 1px solid #ccc;
+	border: 1px solid #dcdcde;
 	margin-bottom: 10px;
 	background: #fff;
 }
@@ -39,6 +39,10 @@
 	transition: transform 0.2s ease;
 }
 
+.pdf-auditor-site-toggle[aria-expanded="true"] .toggle-icon {
+	transform: rotate(90deg);
+}
+
 .pdf-auditor-site-toggle .site-name {
 	font-weight: 600;
 	color: #0073aa;
@@ -54,6 +58,7 @@
 .pdf-auditor-site-content {
 	padding: 15px;
 	border-top: 1px solid #eee;
+	overflow: hidden;
 }
 
 .pdf-auditor-loading {
@@ -72,7 +77,7 @@
 
 .pdf-auditor-download-csv {
 	background-color: #0a8344;
-	border: 1px solid #4E704E;
+	border: 1px solid #0a8344;
 	color: white;
 	padding: 6px 12px;
 	font-size: 12px;
@@ -117,6 +122,11 @@
 	text-align: left;
 	font-weight: 600;
 	color: #000;
+	position: sticky;
+	top: 0;
+	background: #f5f5f5;
+	z-index: 10;
+	background-clip: padding-box;
 }
 
 .pdf-auditor-table th[data-sort] {
