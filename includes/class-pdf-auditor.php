@@ -61,7 +61,7 @@ class PDF_Auditor {
 
 		wp_enqueue_style(
 			'pdf-auditor-css',
-			PDF_AUDITOR_PLUGIN_URL . 'assets/css/pdf-auditor.css?v=123',
+			PDF_AUDITOR_PLUGIN_URL . 'assets/css/pdf-auditor.css',
 			array(),
 			PDF_AUDITOR_VERSION
 		);
@@ -172,6 +172,20 @@ class PDF_Auditor {
 				foreach ( $attachments as $attachment ) {
 					$file_url  = wp_get_attachment_url( $attachment->ID );
 					$file_path = get_attached_file( $attachment->ID );
+
+					// Guard against missing or orphaned files
+					if ( ! $file_path || ! file_exists( $file_path ) ) {
+						$pdfs[] = array(
+							'id'           => $attachment->ID,
+							'filename'     => wp_basename( $file_url ),
+							'url'          => $file_url,
+							'upload_date'  => $attachment->post_date,
+							'file_size'    => __( 'Missing file', 'pdf-auditor' ),
+							'file_size_raw' => 0,
+						);
+						continue;
+					}
+
 					$file_size = filesize( $file_path );
 
 					$pdfs[] = array(
@@ -234,6 +248,18 @@ class PDF_Auditor {
 				foreach ( $attachments as $attachment ) {
 					$file_url  = wp_get_attachment_url( $attachment->ID );
 					$file_path = get_attached_file( $attachment->ID );
+
+					// Guard against missing or orphaned files
+					if ( ! $file_path || ! file_exists( $file_path ) ) {
+						$pdfs[] = array(
+							'filename'    => wp_basename( $file_url ),
+							'url'         => $file_url,
+							'upload_date' => $attachment->post_date,
+							'file_size'   => __( 'Missing file', 'pdf-auditor' ),
+						);
+						continue;
+					}
+
 					$file_size = filesize( $file_path );
 
 					$pdfs[] = array(
