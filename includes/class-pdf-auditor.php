@@ -145,13 +145,17 @@ class PDF_Auditor {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'pdf-auditor' ) );
 		}
 
-		// Fetches up to 999 subsites, returning only their IDs.
-		$sites = get_sites(
+		// Fetches all subsites.
+		$sites_list = get_sites(
 			array(
 				'number' => 999,
-				'fields' => 'ids',
 			)
 		);
+
+		// Sort sites alphabetically by blogname (case-insensitive, natural sort)
+		usort( $sites_list, function( $a, $b ) {
+			return strnatcasecmp( $a->blogname, $b->blogname );
+		});
 
 		// Everything below is HTML output for the interface.
 		?>
@@ -160,11 +164,10 @@ class PDF_Auditor {
 			<p><?php esc_html_e( 'Scan your multisite for PDFs. Click to expand a site and view its PDF inventory.', 'pdf-auditor' ); ?></p>
 
 			<div id="pdf-auditor-accordion" class="pdf-auditor-accordion">
-				<?php foreach ( $sites as $site_id ) : ?>
-					<?php $site = get_site( $site_id ); ?>
+				<?php foreach ( $sites_list as $site ) : ?>
 
 					<!-- Each site becomes a collapsible section -->
-					<div class="pdf-auditor-site" data-site-id="<?php echo absint( $site_id ); ?>">
+					<div class="pdf-auditor-site" data-site-id="<?php echo absint( $site->blog_id ); ?>">
 
 						<!-- The button that opens the site’s PDF list -->
 						<button class="pdf-auditor-site-toggle" type="button" aria-expanded="false">
